@@ -76,7 +76,7 @@ cards.forEach(card => {
 
 // Typing Effect
 const typingElement = document.querySelector('.info-home h3');
-const words = ["Full Stack Developer", "Ml DataPreprocessing", "Web Enthusiast", "React Developer"];
+const words = ["Machine Learning Engineer", "AI Specialist", "Data Scientist", "Deep Learning Enthusiast"];
 let wordIndex = 0;
 let charIndex = 0;
 let isDeleting = false;
