@@ -1,0 +1,17 @@
+{
+  "name": "jay-jaiswal-portfolio",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Experimental creative engineering portfolio for Jay Jaiswal",
+  "scripts": {
+    "check": "node --check script.js && node --check data.js && node --check project.js && node scripts/validate.mjs",
+    "build": "node scripts/build.mjs",
+    "test:browser": "node scripts/browser-test.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.65.1"
+  }
+}
