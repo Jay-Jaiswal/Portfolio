@@ -13,6 +13,7 @@ function assert(condition, message) {
 await page.goto("http://127.0.0.1:8000/", { waitUntil: "domcontentloaded" });
 await page.waitForSelector(".project-card");
 assert(await page.locator(".project-card").count() === 4, "Expected four project cards");
+assert(await page.locator(".all-repos").getAttribute("href") === "https://jay-jaiswal.github.io/", "More-projects CTA should open the project catalogue");
 
 await page.getByRole("button", { name: "Data", exact: true }).click();
 assert(await page.locator(".project-card:not(.hidden)").count() === 1, "Data filter should show one project");

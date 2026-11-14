@@ -184,11 +184,11 @@
         if (point.y < 0 || point.y > canvas.clientHeight) point.vy *= -1;
         const pd = Math.hypot(point.x - pointer.x, point.y - pointer.y);
         if (pd < 160) { point.x += (pointer.x - point.x) * .0007; point.y += (pointer.y - point.y) * .0007; }
-        context.fillStyle = index % 7 === 0 ? "#c6ff3d" : "rgba(244,244,240,.42)";
+        context.fillStyle = index % 7 === 0 ? "#ffc857" : "rgba(246,241,232,.42)";
         context.beginPath(); context.arc(point.x, point.y, index % 7 === 0 ? 2 : 1, 0, Math.PI * 2); context.fill();
         points.slice(index + 1).forEach((other) => {
           const distance = Math.hypot(point.x - other.x, point.y - other.y);
-          if (distance < 115) { context.strokeStyle = `rgba(198,255,61,${(1 - distance / 115) * .13})`; context.beginPath(); context.moveTo(point.x, point.y); context.lineTo(other.x, other.y); context.stroke(); }
+          if (distance < 115) { context.strokeStyle = `rgba(85,214,190,${(1 - distance / 115) * .15})`; context.beginPath(); context.moveTo(point.x, point.y); context.lineTo(other.x, other.y); context.stroke(); }
         });
       });
       requestAnimationFrame(draw);

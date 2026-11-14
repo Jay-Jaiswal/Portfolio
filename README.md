@@ -42,4 +42,5 @@ The included `CNAME` points Pages to `jayjaiswal.codes`. Deploy either the repos
 
 - Role-specific resume PDFs are stored in `resumes/`.
 - Project facts are centralized in `data.js`.
+- The complete-project catalogue CTA opens `https://jay-jaiswal.github.io/` rather than a GitHub repository listing.
 - No complete project catalogue or project screenshots were available in this checkout. The case studies intentionally omit unsupported metrics, deployment links and unverified implementation detail.
