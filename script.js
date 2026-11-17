@@ -134,8 +134,12 @@
   });
 
   const contactForm = qs("#contact-form");
-  contactForm?.addEventListener("submit", (event) => {
+  contactForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const submitButton = qs('button[type="submit"]', contactForm);
+    const submitLabel = qs("span", submitButton);
+    const status = qs("#form-status");
+    const formConfig = window.CONTACT_FORM_CONFIG;
     let valid = true;
     qsa("[required]", contactForm).forEach((field) => {
       const error = field.parentElement.querySelector("small");
@@ -145,12 +149,55 @@
       field.setAttribute("aria-invalid", String(invalid));
       valid = valid && !invalid;
     });
-    if (!valid) { qs("#form-status").textContent = "Please review the highlighted fields."; return; }
-    const form = new FormData(contactForm);
-    const subject = encodeURIComponent(`[${form.get("opportunity")}] ${form.get("subject")}`);
-    const body = encodeURIComponent(`Hi Jay,\n\n${form.get("message")}\n\nFrom: ${form.get("name")}\nEmail: ${form.get("email")}`);
-    qs("#form-status").textContent = "Opening your email app. Your message has not been sent yet.";
-    window.location.href = `mailto:jaiswaljay010@gmail.com?subject=${subject}&body=${body}`;
+    if (!valid) {
+      status.textContent = "Please review the highlighted fields.";
+      status.dataset.state = "error";
+      return;
+    }
+    if (!formConfig?.endpoint || !formConfig?.accessKey) {
+      status.textContent = "Something went wrong. Please try again.";
+      status.dataset.state = "error";
+      return;
+    }
+
+    const formData = new FormData(contactForm);
+    formData.append("access_key", formConfig.accessKey);
+    formData.append("from_name", "Jay Jaiswal Portfolio");
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), formConfig.timeoutMs || 15000);
+    submitButton.disabled = true;
+    contactForm.setAttribute("aria-busy", "true");
+    submitLabel.textContent = "Sending...";
+    status.textContent = "";
+    status.dataset.state = "loading";
+
+    try {
+      const response = await fetch(formConfig.endpoint, {
+        method: "POST",
+        body: formData,
+        headers: { Accept: "application/json" },
+        signal: controller.signal
+      });
+      const result = await response.json().catch(() => null);
+      if (!response.ok || !result?.success) throw new Error("Web3Forms submission failed");
+
+      contactForm.reset();
+      qsa("[required]", contactForm).forEach((field) => {
+        field.setAttribute("aria-invalid", "false");
+        const error = field.parentElement.querySelector("small");
+        if (error) error.textContent = "";
+      });
+      status.textContent = "Message sent successfully. I'll get back to you soon.";
+      status.dataset.state = "success";
+    } catch {
+      status.textContent = "Something went wrong. Please try again.";
+      status.dataset.state = "error";
+    } finally {
+      window.clearTimeout(timeout);
+      submitButton.disabled = false;
+      contactForm.removeAttribute("aria-busy");
+      submitLabel.textContent = "Send Message";
+    }
   });
 
   const progress = qs(".page-progress span");

@@ -239,6 +239,10 @@ img { max-width: 100%; display: block; }
 .field small { min-height: 1em; color: #ff7f7f; font-size: .65rem; }
 .contact-form .button { width: max-content; border: 0; }
 .form-status { color: var(--muted); font-size: .75rem; }
+.contact-form .button:disabled { cursor: wait; opacity: .68; }
+.form-status[data-state="success"] { color: var(--cyan); }
+.form-status[data-state="error"] { color: #ff9a9a; }
+.form-status[data-state="loading"] { color: var(--lime); }
 
 footer { display: grid; grid-template-columns: 1fr 1fr auto auto 3rem; gap: 2rem; align-items: center; padding: 2.5rem var(--pad); border-top: 1px solid var(--border); background: var(--bg); font: .6rem var(--mono); color: var(--muted); }
 footer nav { display: flex; gap: 1rem; }

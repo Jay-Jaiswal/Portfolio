@@ -4,7 +4,7 @@
   "private": true,
   "description": "Experimental creative engineering portfolio for Jay Jaiswal",
   "scripts": {
-    "check": "node --check script.js && node --check data.js && node --check project.js && node scripts/validate.mjs",
+    "check": "node --check script.js && node --check data.js && node --check contact-config.js && node --check project.js && node scripts/validate.mjs",
     "build": "node scripts/build.mjs",
     "test:browser": "node scripts/browser-test.mjs"
   },

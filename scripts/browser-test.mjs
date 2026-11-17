@@ -3,8 +3,21 @@ import { chromium } from "playwright-core";
 const browser = await chromium.launch({ headless: true, executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: "reduce" });
 const errors = [];
+let formMode = "success";
+let lastSubmission = "";
+let ignoreExpectedFormFailureConsoleErrors = false;
 page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
-page.on("console", (message) => { if (message.type() === "error") errors.push(`console: ${message.text()}`); });
+page.on("console", (message) => {
+  const expectedFailure = ignoreExpectedFormFailureConsoleErrors && /400 \(Bad Request\)|net::ERR_FAILED/.test(message.text());
+  if (message.type() === "error" && !expectedFailure) errors.push(`console: ${message.text()}`);
+});
+await page.route("https://api.web3forms.com/submit", async (route) => {
+  lastSubmission = route.request().postData() || "";
+  await new Promise((resolve) => setTimeout(resolve, 150));
+  if (formMode === "network") return route.abort("failed");
+  if (formMode === "error") return route.fulfill({ status: 400, contentType: "application/json", body: JSON.stringify({ success: false }) });
+  return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ success: true }) });
+});
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -35,6 +48,37 @@ assert((await page.locator("#terminal-output").textContent()).includes("QAir"), 
 await page.locator("#contact-form button[type=submit]").click();
 assert((await page.locator("#form-status").textContent()).includes("review"), "Empty contact form should show validation feedback");
 
+async function fillContactForm(subject) {
+  await page.locator("#name").fill("Portfolio QA");
+  await page.locator("#email").fill("qa@example.test");
+  await page.locator("#subject").fill(subject);
+  await page.locator("#message").fill("Testing the Web3Forms contact flow.");
+}
+
+await fillContactForm("Success test");
+const successButton = page.locator('#contact-form button[type="submit"]');
+await successButton.click();
+assert(await successButton.isDisabled(), "Submit button should be disabled while sending");
+await page.waitForFunction(() => document.querySelector("#form-status")?.dataset.state === "success");
+assert((await page.locator("#form-status").textContent()).includes("Message sent successfully"), "Successful submission should show success feedback");
+assert((await page.locator("#name").inputValue()) === "", "Successful submission should clear the form");
+assert(lastSubmission.includes("46310ecb-4022-42dd-be2c-107b48551883"), "Web3Forms access key should be included in the submitted FormData");
+
+formMode = "error";
+ignoreExpectedFormFailureConsoleErrors = true;
+await fillContactForm("Error test");
+await successButton.click();
+await page.waitForFunction(() => document.querySelector("#form-status")?.dataset.state === "error");
+assert((await page.locator("#form-status").textContent()).includes("Something went wrong"), "API failures should show error feedback");
+assert(!(await successButton.isDisabled()), "Submit button should re-enable after an API error");
+
+formMode = "network";
+await successButton.click();
+await page.waitForFunction(() => document.querySelector("#form-status")?.dataset.state === "error");
+assert((await page.locator("#form-status").textContent()).includes("Something went wrong"), "Network failures should show error feedback");
+formMode = "success";
+ignoreExpectedFormFailureConsoleErrors = false;
+
 for (const slug of ["qair", "datafixer", "medicase", "migrationguard"]) {
   await page.goto(`http://127.0.0.1:8000/projects/${slug}/`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector(".case-header h1");
@@ -51,4 +95,4 @@ assert(overflow <= 1, `Mobile page has ${overflow}px horizontal overflow`);
 
 await browser.close();
 if (errors.length) throw new Error(`Browser console errors:\n${errors.join("\n")}`);
-console.log("Browser QA passed: homepage, filters, roles, resumes, terminal, form validation, 4 case studies, mobile menu and overflow.");
+console.log("Browser QA passed: homepage, filters, roles, resumes, terminal, Web3Forms validation/success/API-error/network-error flow, 4 case studies, mobile menu and overflow.");

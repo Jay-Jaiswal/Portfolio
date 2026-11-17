@@ -23,7 +23,7 @@ The production build is written to `dist/`.
 
 ## Contact form
 
-The form validates all required fields and opens the visitor's email application with a prepared message. It does not claim a message was sent. To send directly from the website, replace the `mailto:` handoff in `script.js` with a configured provider such as Resend, Formspree or a serverless endpoint; no service credentials are currently present.
+The contact form submits directly to Web3Forms using `fetch` and `FormData`. Its public access key and endpoint are centralized in `contact-config.js`; Web3Forms access keys are intended for client-side forms, so do not add private credentials to that file. The interface includes validation, sending, success and error states with no additional environment variables or dependencies.
 
 ## Deployment
 

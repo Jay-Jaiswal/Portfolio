@@ -2,7 +2,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, normalize } from "node:path";
 
 const htmlFiles = ["index.html", "projects/qair/index.html", "projects/datafixer/index.html", "projects/medicase/index.html", "projects/migrationguard/index.html"];
-const required = ["style.css", "script.js", "data.js", "project.js", "images/profile.jpg", "resumes/Jay_Jaiswal_AI_ML_Resume.pdf", "resumes/Jay_Jaiswal_Software_Developer_Resume.pdf", "robots.txt", "sitemap.xml"];
+const required = ["style.css", "script.js", "data.js", "contact-config.js", "project.js", "images/profile.jpg", "resumes/Jay_Jaiswal_AI_ML_Resume.pdf", "resumes/Jay_Jaiswal_Software_Developer_Resume.pdf", "robots.txt", "sitemap.xml"];
 const errors = [];
 
 for (const file of [...htmlFiles, ...required]) {
